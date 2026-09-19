@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PriceTag — Rapid Scan Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0b0c10;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+  h1 { letter-spacing: -0.05em; font-size: 3rem; margin-bottom: 2rem; text-transform: uppercase; color: #ff2e63; }
+  .card {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 720px;
+    box-shadow: 0 20px 60px rgba(255,46,99,0.25);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .big-number {
+    font-size: 7rem;
+    font-weight: 900;
+    line-height: 1;
+    color: #00ff9d;
+    text-shadow: 0 0 30px rgba(0,255,157,0.35);
+  }
+  .label { font-size: 1.1rem; color: #888; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .count { font-size: 3rem; font-weight: 900; color: #ff2e63; }
+  .row { display: flex; gap: 2rem; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; }
+  .col { flex: 1 1 180px; }
+  button {
+    background: #ff2e63; color: #fff; border: none; border-radius: 1rem;
+    padding: 1.25rem 2rem; font-size: 1.5rem; font-weight: 900; cursor: pointer;
+    box-shadow: 0 10px 30px rgba(255,46,99,0.35); transition: transform .1s, box-shadow .1s;
+  }
+  button:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(255,46,99,0.45); }
+  button:active { transform: translateY(0); }
+  ul { list-style: none; max-height: 260px; overflow-y: auto; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem; }
+  li { padding: 0.5rem 0; font-family: monospace; font-size: 1.1rem; color: #e0e0e0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .badge { display: inline-block; background: #00ff9d; color: #0b0c10; padding: 0.15rem 0.5rem; border-radius: 0.35rem; font-weight: 900; margin-right: 0.5rem; }
+</style>
+</head>
+<body>
+  <h1>PriceTag Scan</h1>
+  <div class="card">
+    <div class="row">
+      <div class="col">
+        <div class="label">Total Scanned</div>
+        <div class="big-number" id="total">0</div>
+      </div>
+      <div class="col">
+        <div class="label">Item Count</div>
+        <div class="count" id="count">0</div>
+      </div>
+    </div>
+    <button onclick="addScan()">+ Rapid Scan</button>
+    <ul id="list"></ul>
+  </div>
+
+<script>
+  let total = 0, count = 0;
+  const codes = ['490123456789','490987654321','490555566666','490111122222','490333344444','490777788888'];
+  function randPrice() { return +(Math.random()*25+5).toFixed(2); }
+  function addScan() {
+    const code = codes[Math.floor(Math.random()*codes.length)];
+    const price = randPrice();
+    total += price; count++;
+    document.getElementById('total').textContent = '$'+total.toFixed(2);
+    document.getElementById('count').textContent = count;
+    const li = document.createElement('li');
+    li.innerHTML = '<span class="badge">' + code + '</span> $' + price.toFixed(2);
+    document.getElementById('list').prepend(li);
+  }
+</script>
+</body>
+</html>
