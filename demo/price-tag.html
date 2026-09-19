@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Price Tag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ece7da;
+    --card: #f5f2e9;
+    --ink: #2a2722;
+    --muted: #837a68;
+    --rule: #c9c2b0;
+    --lcd-bg: #16241c;
+    --lcd-glass: #0e1712;
+    --lcd-amber: #ffb100;
+    --safe: #2f9e5c;
+    --warn: #d99a1a;
+    --danger: #d1453b;
+    --shadow: 0 2px 10px rgba(42,39,34,0.10);
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17140f;
+      --card: #211d16;
+      --ink: #ece5d6;
+      --muted: #8f8571;
+      --rule: #3c3527;
+      --lcd-bg: #0c1712;
+      --lcd-glass: #07100c;
+      --lcd-amber: #ffc74d;
+      --safe: #4bc27f;
+      --warn: #e0ab3d;
+      --danger: #e2685f;
+      --shadow: 0 2px 14px rgba(0,0,0,0.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #17140f; --card: #211d16; --ink: #ece5d6; --muted: #8f8571; --rule: #3c3527;
+    --lcd-bg: #0c1712; --lcd-glass: #07100c; --lcd-amber: #ffc74d; --safe: #4bc27f;
+    --warn: #e0ab3d; --danger: #e2685f; --shadow: 0 2px 14px rgba(0,0,0,0.45);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    display: flex; justify-content: center; padding: 20px 14px;
+    padding-top: calc(20px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; }
+  .wrap { width: 100%; max-width: 420px; }
+  .brand { text-align: center; margin-bottom: 16px; }
+  .brand .mark { font-size: 15px; font-weight: 600; letter-spacing: 0.02em; }
+  .brand .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .receipt { background: var(--card); border-radius: 6px 6px 0 0; box-shadow: var(--shadow); overflow: hidden; }
+  .lcd-zone { background: var(--lcd-bg); padding: 20px 20px 16px; }
+  .lcd-screen { background: var(--lcd-glass); border-radius: 8px; padding: 14px 16px 12px; }
+  .lcd-caption { font-size: 11px; color: #7a8f80; margin-bottom: 2px; }
+  .lcd-total { font-size: 42px; font-weight: 600; color: var(--lcd-amber); letter-spacing: 0.01em; line-height: 1.1; text-shadow: 0 0 14px rgba(255,177,0,0.35); }
+  .lcd-status { font-size: 12px; color: #7a8f80; margin-top: 6px; min-height: 15px; }
+  .lcd-status.warn { color: var(--warn); } .lcd-status.danger { color: var(--danger); }
+  .gauge-track { margin-top: 10px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .gauge-fill { height: 100%; width: 0%; background: var(--safe); transition: width 0.25s ease, background 0.25s ease; }
+  .gauge-fill.warn { background: var(--warn); } .gauge-fill.danger { background: var(--danger); }
+  .limit-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; color: #7a8f80; }
+  .limit-row input { width: 72px; background: transparent; border: none; border-bottom: 1px dashed #3f5347; color: var(--lcd-amber); font-size: 13px; padding: 2px 2px; }
+  .limit-row input:focus { outline: none; border-bottom-color: var(--lcd-amber); }
+  .limit-clear { background: none; border: none; color: #5c7266; font-size: 11px; cursor: pointer; text-decoration: underline; margin-left: auto; }
+  .perf { height: 8px; background-image: radial-gradient(circle, var(--bg) 3.2px, transparent 3.4px); background-size: 15px 100%; background-position: 4px center; background-repeat: repeat-x; background-color: var(--card); }
+  .add-zone { padding: 14px 16px; background: var(--card); }
+  .row { display: flex; gap: 8px; }
+  .field { flex: 1; min-width: 0; } .field.price-field { flex: 0 0 96px; }
+  label.field-label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  input[type="text"], input[type="number"] { width: 100%; padding: 10px 10px; border-radius: 8px; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); font-size: 15px; }
+  input[type="number"] { font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+  input:focus { outline: 2px solid var(--lcd-amber); outline-offset: -1px; }
+  .photo-row { display: flex; align-items: center; gap: 10px; margin-top: 9px; }
+  .photo-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; border: 1px dashed var(--rule); background: transparent; color: var(--muted); font-size: 12.5px; cursor: pointer; }
+  .photo-thumb { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; border: 1px solid var(--rule); }
+  .photo-clear { background: none; border: none; color: var(--muted); font-size: 12px; cursor: pointer; text-decoration: underline; }
+  .add-btn { margin-top: 12px; width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--ink); color: var(--card); font-size: 15px; font-weight: 600; cursor: pointer; font-family: "IBM Plex Sans", sans-serif; }
+  .add-btn:active { opacity: 0.85; }
+  .items-zone { padding: 4px 16px 6px; background: var(--card); }
+  .item { display: flex; align-items: baseline; gap: 8px; padding: 9px 0; border-bottom: 1px dashed var(--rule); }
+  .item:last-child { border-bottom: none; }
+  .item img { width: 26px; height: 26px; border-radius: 5px; object-fit: cover; align-self: center; flex-shrink: 0; }
+  .item-name { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46%; }
+  .leader { flex: 1; border-bottom: 1px dotted var(--rule); transform: translateY(-4px); }
+  .item-price { font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .item-del { background: none; border: none; color: var(--muted); font-size: 15px; cursor: pointer; padding: 0 2px; line-height: 1; }
+  .empty-state { text-align: center; color: var(--muted); font-size: 13px; padding: 22px 10px; }
+  .torn { height: 11px; background: linear-gradient(135deg, var(--card) 5.5px, transparent 0) 0 5.5px, linear-gradient(-135deg, var(--card) 5.5px, transparent 0) 0 5.5px; background-repeat: repeat-x; background-size: 11px 11px; background-color: var(--bg); margin-bottom: 4px; }
+  .list-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px 4px; }
+  .list-header span { font-size: 11.5px; color: var(--muted); }
+  .clear-all { background: none; border: none; color: var(--danger); font-size: 12px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><div class="mark">🧾 Price Tag</div><div class="sub">running total, no surprises at checkout</div></div>
+  <div class="receipt">
+    <div class="lcd-zone">
+      <div class="lcd-screen">
+        <div class="lcd-caption">today's total</div>
+        <div class="lcd-total mono" id="totalValue">$0.00</div>
+        <div class="lcd-status" id="statusLine"></div>
+        <div class="gauge-track" id="gaugeTrack" style="display:none;"><div class="gauge-fill" id="gaugeFill"></div></div>
+      </div>
+      <div class="limit-row">
+        <span>limit $</span>
+        <input type="number" id="limitInput" inputmode="decimal" min="0" step="1" placeholder="none">
+        <button class="limit-clear" id="limitClearBtn" style="display:none;">clear</button>
+      </div>
+    </div>
+    <div class="perf"></div>
+    <div class="add-zone">
+      <div class="row">
+        <div class="field price-field"><label class="field-label">price</label><input type="number" id="priceInput" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
+        <div class="field"><label class="field-label">item (optional)</label><input type="text" id="nameInput" placeholder="e.g. milk"></div>
+      </div>
+      <div class="photo-row">
+        <label class="photo-btn" id="photoLabel">📷 attach photo <input type="file" accept="image/*" capture="environment" id="photoInput" style="display:none;"></label>
+        <img id="photoPreview" class="photo-thumb" style="display:none;">
+        <button class="photo-clear" id="photoClearBtn" style="display:none;">remove</button>
+      </div>
+      <button class="add-btn" id="addBtn">add to receipt</button>
+    </div>
+    <div class="perf"></div>
+    <div class="list-header"><span id="itemCount">0 items</span><button class="clear-all" id="clearAllBtn">clear all</button></div>
+    <div class="items-zone" id="itemsList"></div>
+    <div class="empty-state" id="emptyState">nothing on the tape yet</div>
+    <div class="torn"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var ITEMS_KEY = 'priceTagItems'; var LIMIT_KEY = 'priceTagLimit';
+  var items = []; var limit = null; var pendingPhoto = null;
+  function loadItems() { try { var raw = localStorage.getItem(ITEMS_KEY); items = raw ? JSON.parse(raw) : []; if (!Array.isArray(items)) items = []; } catch (e) { items = []; } }
+  function saveItems() { try { localStorage.setItem(ITEMS_KEY, JSON.stringify(items)); } catch (e) {} }
+  function loadLimit() { try { var raw = localStorage.getItem(LIMIT_KEY); limit = raw ? parseFloat(raw) : null; if (isNaN(limit)) limit = null; } catch (e) { limit = null; } }
+  function saveLimit() { try { if (limit === null) localStorage.removeItem(LIMIT_KEY); else localStorage.setItem(LIMIT_KEY, String(limit)); } catch (e) {} }
+  function formatMoney(n) { return '$' + n.toFixed(2); }
+  function render() {
+    var total = items.reduce(function (sum, it) { return sum + it.price; }, 0);
+    document.getElementById('totalValue').textContent = formatMoney(total);
+    document.getElementById('itemCount').textContent = items.length + (items.length === 1 ? ' item' : ' items');
+    var statusEl = document.getElementById('statusLine');
+    var gaugeTrack = document.getElementById('gaugeTrack');
+    var gaugeFill = document.getElementById('gaugeFill');
+    statusEl.className = 'lcd-status';
+    if (limit && limit > 0) {
+      var pct = total / limit;
+      gaugeTrack.style.display = 'block';
+      gaugeFill.style.width = Math.min(pct, 1) * 100 + '%';
+      gaugeFill.className = 'gauge-fill';
+      if (pct >= 1) { gaugeFill.classList.add('danger'); statusEl.classList.add('danger'); statusEl.textContent = 'over budget by ' + formatMoney(total - limit); }
+      else if (pct >= 0.8) { gaugeFill.classList.add('warn'); statusEl.classList.add('warn'); statusEl.textContent = formatMoney(limit - total) + ' left of ' + formatMoney(limit); }
+      else { statusEl.textContent = formatMoney(limit - total) + ' left of ' + formatMoney(limit); }
+    } else { gaugeTrack.style.display = 'none'; statusEl.textContent = 'set a limit below to track your budget'; }
+    var list = document.getElementById('itemsList'); var empty = document.getElementById('emptyState');
+    list.innerHTML = '';
+    if (items.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    for (var i = items.length - 1; i >= 0; i--) {
+      (function (item, idx) {
+        var row = document.createElement('div'); row.className = 'item';
+        if (item.photo) { var img = document.createElement('img'); img.src = item.photo; row.appendChild(img); }
+        var nameEl = document.createElement('div'); nameEl.className = 'item-name'; nameEl.textContent = item.name || 'item'; row.appendChild(nameEl);
+        var leader = document.createElement('div'); leader.className = 'leader'; row.appendChild(leader);
+        var priceEl = document.createElement('div'); priceEl.className = 'item-price mono'; priceEl.textContent = formatMoney(item.price); row.appendChild(priceEl);
+        var delBtn = document.createElement('button'); delBtn.className = 'item-del'; delBtn.textContent = '✕';
+        delBtn.addEventListener('click', function () { items.splice(idx, 1); saveItems(); render(); });
+        row.appendChild(delBtn);
+        list.appendChild(row);
+      })(items[i], i);
+    }
+  }
+  function resetPhoto() { pendingPhoto = null; document.getElementById('photoPreview').style.display = 'none'; document.getElementById('photoPreview').src = ''; document.getElementById('photoClearBtn').style.display = 'none'; document.getElementById('photoInput').value = ''; }
+  function addItem() {
+    var priceVal = parseFloat(document.getElementById('priceInput').value);
+    if (isNaN(priceVal) || priceVal < 0) { document.getElementById('priceInput').focus(); document.getElementById('priceInput').style.outline = '2px solid var(--danger)'; setTimeout(function () { document.getElementById('priceInput').style.outline = ''; }, 900); return; }
+    items.push({ price: priceVal, name: document.getElementById('nameInput').value.trim(), photo: pendingPhoto, ts: Date.now() });
+    saveItems(); render();
+    document.getElementById('priceInput').value = ''; document.getElementById('nameInput').value = ''; resetPhoto(); document.getElementById('priceInput').focus();
+  }
+  document.getElementById('addBtn').addEventListener('click', addItem);
+  document.getElementById('priceInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') addItem(); });
+  document.getElementById('photoInput').addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0]; if (!file) return;
+    var reader = new FileReader(); reader.onload = function (evt) { pendingPhoto = evt.target.result; var preview = document.getElementById('photoPreview'); preview.src = pendingPhoto; preview.style.display = 'inline-block'; document.getElementById('photoClearBtn').style.display = 'inline'; }; reader.readAsDataURL(file);
+  });
+  document.getElementById('photoClearBtn').addEventListener('click', resetPhoto);
+  document.getElementById('clearAllBtn').addEventListener('click', function () { if (items.length === 0) return; if (confirm('Clear the whole tally?')) { items = []; saveItems(); render(); } });
+  var limitInput = document.getElementById('limitInput'); var limitClearBtn = document.getElementById('limitClearBtn');
+  function syncLimitUI() { limitInput.value = limit && limit > 0 ? limit : ''; limitClearBtn.style.display = limit && limit > 0 ? 'inline' : 'none'; }
+  limitInput.addEventListener('change', function () { var v = parseFloat(limitInput.value); limit = (!isNaN(v) && v > 0) ? v : null; saveLimit(); syncLimitUI(); render(); });
+  limitClearBtn.addEventListener('click', function () { limit = null; saveLimit(); syncLimitUI(); render(); });
+  loadItems(); loadLimit(); syncLimitUI(); render();
+})();
+</script>
+</body>
+</html>
