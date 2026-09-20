@@ -1,0 +1,13 @@
+{
+  "name": "PriceTag",
+  "short_name": "PriceTag",
+  "description": "Rapid barcode scanner with running tally",
+  "start_url": "/pricetag/demo/price-tag.html",
+  "display": "standalone",
+  "background_color": "#17140f",
+  "theme_color": "#17140f",
+  "icons": [
+    { "src": "/pricetag/assets/icon.svg", "sizes": "512x512", "type": "image/svg+xml" },
+    { "src": "/pricetag/assets/icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
